@@ -23,8 +23,8 @@ import java.util.Set;
 
 
 public class CaiMoGuHelp {
-    public static Set<Integer> readResources(String fileName){
-        Set<Integer> ids=new HashSet<>();
+    public static Set<String> readResources(String fileName){
+        Set<String> ids=new HashSet<>();
         ClassLoader classLoader = App.class.getClassLoader();
         URL resource = classLoader.getResource(fileName);
         if (resource == null) {
@@ -33,7 +33,7 @@ public class CaiMoGuHelp {
         try (BufferedReader reader = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream(fileName), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                ids.add(Integer.parseInt(line));
+                ids.add(line);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -45,7 +45,7 @@ public class CaiMoGuHelp {
      * 获取参考 踩蘑菇中所有游戏Id
      * @return
      */
-    public static Set<Integer> ScanGameIds(){
+    public static Set<String> ScanGameIds(){
         OkHttpClient client = OkHttpClientFactory.getInstance().getClient();
 
         YearMonth current = YearMonth.now();;
@@ -53,7 +53,7 @@ public class CaiMoGuHelp {
         YearMonth target = YearMonth.of(2021, 1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         String urlFormat="https://www.caimogu.cc/game/find.html?act=fetch&date=%s&sort=1&sort_desc=1&page=%s";
-        Set<Integer> ids=new HashSet<>();
+        Set<String> ids=new HashSet<>();
         while(!target.isAfter(current)) {
             String dateStr = formatter.format(target);
             parseGameId(urlFormat, dateStr, client, ids);
@@ -64,7 +64,7 @@ public class CaiMoGuHelp {
     }
 
 
-    private static void parseGameId(String urlFormat, String dateStr, OkHttpClient client, Set<Integer> ids) {
+    private static void parseGameId(String urlFormat, String dateStr, OkHttpClient client, Set<String> ids) {
         for ( int page = 1; page < Integer.MAX_VALUE; page++ ) {
             Request request = buildCaimoguGameRequest(urlFormat, dateStr, page);
             try (Response response = client.newCall(request).execute()) {
@@ -78,7 +78,7 @@ public class CaiMoGuHelp {
                 }
                 for (Object item : data) {
                     JSONObject jsonObject = (JSONObject) item;
-                    Integer id = jsonObject.getInteger("id");
+                    String id = jsonObject.getString("id");
                     String name = jsonObject.getString("name");
                     ids.add(id);
                 }
@@ -102,7 +102,7 @@ public class CaiMoGuHelp {
      * @param caiMoGuToken toKen
      * @return true 成功评分 没有评分
      */
-    public static boolean actSore(Integer id,String caiMoGuToken) {
+    public static boolean actSore(String id,String caiMoGuToken) {
         OkHttpClient client = OkHttpClientFactory.getInstance().getClient();
         FormBody formBody = new FormBody.Builder()
                 .add("id", id.toString())

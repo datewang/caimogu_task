@@ -1,4 +1,4 @@
-package com.github.shy526.interceptor;
+package com.github.shy526.okhttp;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
